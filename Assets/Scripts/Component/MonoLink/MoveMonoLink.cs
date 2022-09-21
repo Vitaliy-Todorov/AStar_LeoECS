@@ -1,4 +1,5 @@
 ﻿using Leopotam.Ecs;
+using UnityEngine;
 
 namespace Assets.Scripts.Component
 {
@@ -8,6 +9,8 @@ namespace Assets.Scripts.Component
             entity.Get<MoveComponent>() = new MoveComponent();
     }
 
-    public struct MoveComponent : IEcsIgnoreInFilter
-    { }
+    public struct MoveComponent // : IEcsIgnoreInFilter
+    {
+        public Vector3 MoveIn;
+    }
 }

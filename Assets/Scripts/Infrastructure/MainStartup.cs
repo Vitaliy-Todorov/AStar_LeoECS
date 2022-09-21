@@ -1,6 +1,7 @@
 using Assets.Scripts.Component;
 using Assets.Scripts.Data;
 using Assets.Scripts.Infrastructure.Systems;
+using Assets.Scripts.Logic.FindingPath.GridFolder;
 using Leopotam.Ecs;
 using System;
 using UnityEngine;
@@ -64,6 +65,9 @@ namespace Assets.Scripts.Infrastructure
         {
             _systems
                 .Add(_inputSystem)
+                .Add(new GridSystem())
+                .Inject(_world)
+                .Inject(_inputSystem)
                 .Init();
         }
 
@@ -71,7 +75,7 @@ namespace Assets.Scripts.Infrastructure
         {
             _fixedSystems
                 .Add(new MoveSystem())
-                .Inject(_inputSystem.Click)
+                .Inject(_inputSystem)
                 .Inject(_staticData.MoveData)
                 .Init();
         }

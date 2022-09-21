@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d23d1c04d4e20294384543f42c9c4ddc, type: 3}
   m_Name: SceneData
   m_EditorClassIdentifier: 
-  MonoEntity:
-  - {fileID: 0}
+  SpawnPositions:
+  - {x: -5.19, y: 2.51, z: 0}

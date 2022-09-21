@@ -12,6 +12,8 @@ namespace Assets.Scripts.Infrastructure.Systems
         public Click _click = new Click();
         public Click Click { get => _click; }
 
+        public bool LeftShift;
+
         public Vector3 Axis
         {
             get
@@ -61,6 +63,11 @@ namespace Assets.Scripts.Infrastructure.Systems
                 Click.Up = true;
                 Click.EndPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             }
+
+            if (Input.GetKey(KeyCode.LeftShift))
+                LeftShift = true;
+            else
+                LeftShift = false;
         }
     }
 }
