@@ -1,8 +1,8 @@
 ﻿using Unity.Mathematics;
 
-namespace Assets.Scripts.FindingPath
+namespace Assets.Scripts.Component
 {
-    public struct PathFindingComponent 
+    public struct PathFindingComponent
     {
         public bool PathFound;
         public float2 StartPosition;

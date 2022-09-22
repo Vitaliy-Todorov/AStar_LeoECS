@@ -16,22 +16,18 @@ namespace Assets.Scripts.Infrastructure.Systems
         public void Init()
         {
             _click = _inputService.Click;
-
-            foreach (int index in _filter)
-                _filter.Get1(index).MoveIn = _filter.Get3(index).gameObject.transform.position;
         }
 
         public void Run()
         {
             foreach(int index in _filter)
             {
-                if (_click.Up && !_inputService.LeftShift)
-                    _filter.Get1(index).MoveIn = _click.StaryPosition;
 
                 Rigidbody2D rigidbody = _filter.Get2(index).Rigidbody;
                 GameObject gameObject = _filter.Get3(index).gameObject;
+                ref MoveComponent moveComponent = ref _filter.Get1(index);
 
-                Vector3 moveIn = _filter.Get1(index).MoveIn - gameObject.transform.position;
+                Vector3 moveIn = moveComponent.MoveIn - gameObject.transform.position;
 
                 if (rigidbody.velocity.magnitude < _moveComponent.MaxSpeed
                     && !_inputService.LeftShift)

@@ -66,6 +66,7 @@ namespace Assets.Scripts.Infrastructure
             _systems
                 .Add(_inputSystem)
                 .Add(new GridSystem())
+                .Add(new InputMoveSystem())
                 .Inject(_world)
                 .Inject(_inputSystem)
                 .Init();

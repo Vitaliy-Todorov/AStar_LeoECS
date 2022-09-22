@@ -1,4 +1,5 @@
 ﻿using Leopotam.Ecs;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace Assets.Scripts.Component
@@ -12,5 +13,10 @@ namespace Assets.Scripts.Component
     public struct MoveComponent // : IEcsIgnoreInFilter
     {
         public Vector3 MoveIn;
+
+
+        public bool PathFound;
+        public float2 StartPosition;
+        public float2 EndPosition;
     }
 }

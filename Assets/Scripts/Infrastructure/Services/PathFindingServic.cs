@@ -6,25 +6,31 @@ using Unity.Burst;
 using Unity.Mathematics;
 using UnityEngine;
 using Leopotam.Ecs;
+using Assets.Scripts.Component;
 
 namespace Assets.Scripts.FindingPath
 {
     // [UpdateAfter(typeof(UnitMoveOrderSystem))]
-    public partial class PathFinding : IEcsRunSystem
+    public partial class PathFindingServic : IEcsRunSystem
     {
         private const int MOVE_STRAIGHT_COST = 10;
         private const int MOVE_DIAGONAL_COST = 14;
-        private EcsFilter<PathFindingComponent> _filter;
+        private EcsFilter<MoveComponent> _filter;
 
         public void Run()
         {
-            foreach(int index in _filter)
-            {
-                PathFindingComponent pathFindingComponent = _filter.Get1(index);
+            float startTime = Time.realtimeSinceStartup;
 
-                if (pathFindingComponent.PathFound)
-                    return;
-                pathFindingComponent.PathFound = false;
+            PathFinding(_filter);
+
+            Debug.Log($"Time {(Time.realtimeSinceStartup - startTime) * 1000}");
+        }
+
+        private void PathFinding(EcsFilter<MoveComponent> filter)
+        {
+            foreach (int index in filter)
+            {
+                MoveComponent pathFindingComponent = filter.Get1(index);
 
                 FindPathJob findPathJob = new FindPathJob
                 {
@@ -32,10 +38,8 @@ namespace Assets.Scripts.FindingPath
                     endPosition = (int2)pathFindingComponent.EndPosition
                 };
 
-                pathFindingComponent.PathFound = true;
                 findPathJob.Schedule();
             }
-
         }
 
         [BurstCompile]
