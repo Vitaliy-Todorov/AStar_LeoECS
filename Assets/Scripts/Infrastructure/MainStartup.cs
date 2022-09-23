@@ -28,9 +28,9 @@ namespace Assets.Scripts.Infrastructure
             _systems = new EcsSystems(_world, "UpdateSystems");
             _fixedSystems = new EcsSystems(_world, "FixedUpdateSystems");
 
+            InitializeObserver();
             InitializedEntities();
             InitializedServices();
-            InitializeObserver();
 
             InitializedUpdateSystems();
             InitializeFixedSystems();
@@ -52,7 +52,8 @@ namespace Assets.Scripts.Infrastructure
             {
                 GameObject player = Instantiate(_player, spawnPosition, Quaternion.identity);
                 MonoEntity monoEntity = player.GetComponent<MonoEntity>();
-                monoEntity.SetComponentFromGObj(_world);
+                EcsEntity entity = _world.NewEntity();
+                monoEntity.SetComponentFromGObj(entity);
             }
         }
 
@@ -63,10 +64,17 @@ namespace Assets.Scripts.Infrastructure
 
         private void InitializedUpdateSystems()
         {
+
+            EcsSystems coreSystems = new EcsSystems(_world, name)
+            .Add(new InputMoveSystem());
+
             _systems
                 .Add(_inputSystem)
                 .Add(new GridSystem())
-                .Add(new InputMoveSystem())
+                .OneFrame<PathFindingComponent>()
+                .Add(coreSystems)
+                .Add(new PathFindingSystem())
+                .OneFrame<OnCollisionEnterEvent>()
                 .Inject(_world)
                 .Inject(_inputSystem)
                 .Init();

@@ -42,7 +42,7 @@ namespace Assets.Scripts.Infrastructure.Systems
             if (Input.GetMouseButtonDown(0))
             {
                 Click.Up = true;
-                Click.StaryPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Click.StartPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             }
 
             if (Input.GetMouseButton(0))

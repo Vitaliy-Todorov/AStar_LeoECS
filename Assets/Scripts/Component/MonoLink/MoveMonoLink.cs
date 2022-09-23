@@ -13,10 +13,5 @@ namespace Assets.Scripts.Component
     public struct MoveComponent // : IEcsIgnoreInFilter
     {
         public Vector3 MoveIn;
-
-
-        public bool PathFound;
-        public float2 StartPosition;
-        public float2 EndPosition;
     }
 }

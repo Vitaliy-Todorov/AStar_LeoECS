@@ -6,7 +6,7 @@ namespace Assets.Scripts.Infrastructure.Systems
     {
         public bool Active;
         public bool Up;
-        public Vector3 StaryPosition;
+        public Vector3 StartPosition;
         public Vector3 EndPosition;
     }
 }

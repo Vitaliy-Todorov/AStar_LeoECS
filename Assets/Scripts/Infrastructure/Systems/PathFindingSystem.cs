@@ -8,45 +8,64 @@ using UnityEngine;
 using Leopotam.Ecs;
 using Assets.Scripts.Component;
 
-namespace Assets.Scripts.FindingPath
+namespace Assets.Scripts.Infrastructure.Systems
 {
     // [UpdateAfter(typeof(UnitMoveOrderSystem))]
-    public partial class PathFindingServic : IEcsRunSystem
+    public partial class PathFindingSystem : IEcsRunSystem
     {
         private const int MOVE_STRAIGHT_COST = 10;
         private const int MOVE_DIAGONAL_COST = 14;
-        private EcsFilter<MoveComponent> _filter;
+        private EcsFilter<PathFindingComponent> _filter;
 
         public void Run()
         {
-            float startTime = Time.realtimeSinceStartup;
-
             PathFinding(_filter);
-
-            Debug.Log($"Time {(Time.realtimeSinceStartup - startTime) * 1000}");
         }
 
-        private void PathFinding(EcsFilter<MoveComponent> filter)
+        private void PathFinding(EcsFilter<PathFindingComponent> filter)
         {
             foreach (int index in filter)
             {
-                MoveComponent pathFindingComponent = filter.Get1(index);
+                PathFindingComponent pathFindingComponent = filter.Get1(index);
 
                 FindPathJob findPathJob = new FindPathJob
                 {
-                    startPosition = (int2)pathFindingComponent.StartPosition,
-                    endPosition = (int2)pathFindingComponent.EndPosition
+                    _startPosition = (int2)pathFindingComponent.StartPosition,
+                    _endPosition = (int2)pathFindingComponent.EndPosition,
+
+                    _path = new NativeList<int2>(Allocator.TempJob)
                 };
 
-                findPathJob.Schedule();
+                JobHandle handle = findPathJob.Schedule();
+
+                handle.Complete();
+
+                SetPathComponent(_filter.GetEntity(index), findPathJob);
+
+                // path.Dispose();
+
+                filter
+                    .GetEntity(index)
+                    .Del<PathFindingComponent>();
             }
+        }
+
+        private void SetPathComponent(EcsEntity entity, FindPathJob findPathJob)
+        {
+            if (!entity.Has<PathComponent>())
+                entity.Get<PathComponent>() = new PathComponent
+                {
+                    Path = findPathJob._path
+                };
         }
 
         [BurstCompile]
         public struct FindPathJob : IJob
         {
-            public int2 startPosition;
-            public int2 endPosition;
+            public int2 _startPosition;
+            public int2 _endPosition;
+            internal NativeList<int2> _path;
+
             public void Execute()
             {
                 int2 gridSize = new int2(20, 20);
@@ -61,7 +80,7 @@ namespace Assets.Scripts.FindingPath
                         Cost costNode = new Cost
                         {
                             G = int.MaxValue,
-                            H = CalculatedDistanceCost(currentPosition, endPosition)
+                            H = CalculatedDistanceCost(currentPosition, _endPosition)
                         };
 
                         GridNode pathNode = new GridNode
@@ -108,9 +127,9 @@ namespace Assets.Scripts.FindingPath
                 neighourOffsetArray[6] = new int2(1, -1);
                 neighourOffsetArray[7] = new int2(1, 1);
 
-                int endNodeIndex = CalculatedIndex(endPosition, gridSize.x);
+                int endNodeIndex = CalculatedIndex(_endPosition, gridSize.x);
 
-                GridNode startNod = pathNodeArray[CalculatedIndex(startPosition, gridSize.x)];
+                GridNode startNod = pathNodeArray[CalculatedIndex(_startPosition, gridSize.x)];
                 startNod.Cost.G = 0;
                 pathNodeArray[startNod.Index] = startNod;
 
@@ -178,8 +197,8 @@ namespace Assets.Scripts.FindingPath
                 {
                     NativeList<int2> path = CalculatePath(pathNodeArray, endNode);
 
-                    /*foreach (int2 pointNoPath in path)
-                        Debug.Log($"pointNoPath: {pointNoPath}");*/
+                    foreach (int2 pointNoPath in path)
+                        _path.Add(pointNoPath);
 
                     path.Dispose();
                 }
@@ -204,6 +223,7 @@ namespace Assets.Scripts.FindingPath
                 return pathNodeArray;
             }
 
+            // ----------------------------------------------------
             private NativeList<int2> CalculatePath(NativeArray<GridNode> pathNodeArray, GridNode endNode)
             {
                 if (endNode.CameFromNodeIndex == -1)

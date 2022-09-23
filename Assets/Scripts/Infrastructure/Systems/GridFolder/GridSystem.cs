@@ -31,8 +31,8 @@ namespace Assets.Scripts.Logic.FindingPath.GridFolder
         {
             if (_click.Up 
                 && _inputService.LeftShift
-                && _grid.PositionToGrid(_click.StaryPosition))
-                SetIsWall(_click.StaryPosition);
+                && _grid.PositionToGrid(_click.StartPosition))
+                SetIsWall(_click.StartPosition);
         }
 
         public void SetIsWall(Vector3 positon)
@@ -51,8 +51,10 @@ namespace Assets.Scripts.Logic.FindingPath.GridFolder
             GameObject GObj = Object.Instantiate(_prefabWall);
 
             MonoEntity monoEntity = GObj.GetComponent<MonoEntity>();
-            monoEntity.SetComponentFromGObj(_world);
-            EcsEntity entity = monoEntity.Entity;
+
+            EcsEntity entity = _world.NewEntity();
+            monoEntity.SetComponentFromGObj(entity);
+            //EcsEntity entity = monoEntity.Entity;
 
             return entity;
         }
