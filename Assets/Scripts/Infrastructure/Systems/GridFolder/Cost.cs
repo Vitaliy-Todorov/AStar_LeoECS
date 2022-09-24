@@ -1,4 +1,4 @@
-﻿namespace Assets.Scripts.FindingPath.Grid
+﻿namespace Assets.Scripts.Infrastructure.Systems.GridFolder
 {
     public struct Cost
     {

@@ -28,15 +28,39 @@ namespace Assets.Scripts.Infrastructure.Systems
                 GameObject gameObject = _filter.Get3(index).gameObject;
                 ref PathComponent pathFindingComponent = ref _filter.Get4(index);
 
-                Vector3 moveIn = moveComponent.MoveIn - gameObject.transform.position;
+                //Vector3 moveIn = moveComponent.MoveIn - gameObject.transform.position;
 
-                foreach (int2 pointNoPath in pathFindingComponent.Path)
-                    Debug.Log($"pointNoPath: {pointNoPath}");
+                int2 NextNodePositionInt2 = pathFindingComponent.Path[pathFindingComponent.NextNodeNumberOfPath];
+                Vector3 NextNodePosition = new Vector3(NextNodePositionInt2.x, NextNodePositionInt2.y);
+                Vector3 moveIn = NextNodePosition - gameObject.transform.position;
 
-                if (rigidbody.velocity.magnitude < _moveComponent.MaxSpeed
+                /*if (rigidbody.velocity.magnitude < _moveComponent.MaxSpeed
                     && !_inputService.LeftShift)
-                    Acceleration(rigidbody, moveIn.normalized, _moveComponent.Acceleration);
+                    {
+                        Debug.Log($"LeftShift {NextNodePositionInt2}");
+                        Acceleration(rigidbody, moveIn.normalized, _moveComponent.Acceleration);
+                    }*/
+
+                if (moveIn.magnitude > 0.2f)
+                    Move(gameObject.transform, moveIn.normalized, _moveComponent.MaxSpeed);
+                else
+                    if( pathFindingComponent.Path.Length - 1 > pathFindingComponent.NextNodeNumberOfPath)
+                    {
+                        Debug.Log($"else1 {NextNodePositionInt2}");
+                        pathFindingComponent.NextNodeNumberOfPath += 1;
+                    }
+                    else
+                    {
+                        Debug.Log($"else2 {NextNodePositionInt2}");
+                        pathFindingComponent.Path.Dispose();
+                        _filter.GetEntity(index).Del<PathComponent>();
+                    }
             }
+        }
+
+        private void Move(Transform transform, Vector3 moveIn, float maxSpeed)
+        {
+            transform.position += moveIn * maxSpeed * Time.deltaTime;
         }
 
         private void Acceleration(Rigidbody2D rigidbody, Vector2 moveIn, float acceleration) => 

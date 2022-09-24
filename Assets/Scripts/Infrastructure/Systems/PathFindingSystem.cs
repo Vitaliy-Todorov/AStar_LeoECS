@@ -1,4 +1,3 @@
-using Assets.Scripts.FindingPath.Grid;
 using System;
 using Unity.Collections;
 using Unity.Jobs;
@@ -7,6 +6,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Leopotam.Ecs;
 using Assets.Scripts.Component;
+using Assets.Scripts.Infrastructure.Systems.GridFolder;
 
 namespace Assets.Scripts.Infrastructure.Systems
 {
@@ -16,6 +16,10 @@ namespace Assets.Scripts.Infrastructure.Systems
         private const int MOVE_STRAIGHT_COST = 10;
         private const int MOVE_DIAGONAL_COST = 14;
         private EcsFilter<PathFindingComponent> _filter;
+        private GridSystem _gridSystem;
+
+        public void Construct(GridSystem gridSystem) =>
+            _gridSystem = gridSystem;
 
         public void Run()
         {
@@ -33,7 +37,7 @@ namespace Assets.Scripts.Infrastructure.Systems
                     _startPosition = (int2)pathFindingComponent.StartPosition,
                     _endPosition = (int2)pathFindingComponent.EndPosition,
 
-                    _path = new NativeList<int2>(Allocator.TempJob)
+                    _path = new NativeList<int2>(Allocator.Persistent)
                 };
 
                 JobHandle handle = findPathJob.Schedule();
@@ -55,7 +59,8 @@ namespace Assets.Scripts.Infrastructure.Systems
             if (!entity.Has<PathComponent>())
                 entity.Get<PathComponent>() = new PathComponent
                 {
-                    Path = findPathJob._path
+                    Path = findPathJob._path,
+                    NextNodeNumberOfPath = 0
                 };
         }
 

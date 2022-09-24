@@ -29,7 +29,6 @@ namespace Assets.Scripts.Infrastructure.Systems
                 foreach (int index in _filter)
                 {
                     ref EcsEntity entity = ref _filter.GetEntity(index);
-                    var onCollisionEnterEvent = entity.Get<OnCollisionEnterEvent>();
 
                     ref MoveComponent moveComponent = ref _filter.Get1(index);
                     GameObject gameObject = _filter.Get2(index).gameObject;
@@ -48,7 +47,7 @@ namespace Assets.Scripts.Infrastructure.Systems
             PathFindingComponent pathFindingComponent = new PathFindingComponent();
 
             pathFindingComponent.StartPosition = new float2(startPosition.x, startPosition.y);
-            pathFindingComponent.StartPosition = new float2(endPosition.x, endPosition.y);
+            pathFindingComponent.EndPosition = new float2(endPosition.x, endPosition.y);
 
             return pathFindingComponent;
         }

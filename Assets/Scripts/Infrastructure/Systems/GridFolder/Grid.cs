@@ -1,10 +1,9 @@
 ﻿using Assets.Scripts.Component;
-using Assets.Scripts.FindingPath.Grid;
 using Leopotam.Ecs;
 using Unity.Mathematics;
 using UnityEngine;
 
-namespace Assets.Scripts.Logic.FindingPath.GridFolder
+namespace Assets.Scripts.Infrastructure.Systems.GridFolder
 {
     public struct Grid
     {

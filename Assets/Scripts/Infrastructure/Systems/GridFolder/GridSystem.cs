@@ -1,10 +1,8 @@
 ﻿using Assets.Scripts.Component;
-using Assets.Scripts.Infrastructure.Systems;
 using Leopotam.Ecs;
-using Unity.Mathematics;
 using UnityEngine;
 
-namespace Assets.Scripts.Logic.FindingPath.GridFolder
+namespace Assets.Scripts.Infrastructure.Systems.GridFolder
 {
     public partial class GridSystem : IEcsInitSystem, IEcsRunSystem
     {
@@ -18,6 +16,8 @@ namespace Assets.Scripts.Logic.FindingPath.GridFolder
         private string _addressPrefabWall = "Wall";
         private GameObject _prefabWall;
 
+        public Grid Grid { get => _grid; }
+
         public void Init()
         {
             _prefabWall = Resources.Load<GameObject>(_addressPrefabWall);
@@ -29,7 +29,7 @@ namespace Assets.Scripts.Logic.FindingPath.GridFolder
 
         public void Run()
         {
-            if (_click.Up 
+            if (_click.Up
                 && _inputService.LeftShift
                 && _grid.PositionToGrid(_click.StartPosition))
                 SetIsWall(_click.StartPosition);

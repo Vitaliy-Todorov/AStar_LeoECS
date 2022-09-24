@@ -1,7 +1,7 @@
 using Assets.Scripts.Component;
 using Assets.Scripts.Data;
 using Assets.Scripts.Infrastructure.Systems;
-using Assets.Scripts.Logic.FindingPath.GridFolder;
+using Assets.Scripts.Infrastructure.Systems.GridFolder;
 using Leopotam.Ecs;
 using System;
 using UnityEngine;
@@ -65,16 +65,16 @@ namespace Assets.Scripts.Infrastructure
         private void InitializedUpdateSystems()
         {
 
-            EcsSystems coreSystems = new EcsSystems(_world, name)
-            .Add(new InputMoveSystem());
+            GridSystem gridSystem = new GridSystem();
+            PathFindingSystem pathFindingSystem = new PathFindingSystem();
+
+            pathFindingSystem.Construct(gridSystem);
 
             _systems
                 .Add(_inputSystem)
-                .Add(new GridSystem())
-                .OneFrame<PathFindingComponent>()
-                .Add(coreSystems)
-                .Add(new PathFindingSystem())
-                .OneFrame<OnCollisionEnterEvent>()
+                .Add(gridSystem)
+                .Add(new InputMoveSystem())
+                .Add(pathFindingSystem)
                 .Inject(_world)
                 .Inject(_inputSystem)
                 .Init();
