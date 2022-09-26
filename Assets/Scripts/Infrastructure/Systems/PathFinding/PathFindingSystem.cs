@@ -18,6 +18,7 @@ namespace Assets.Scripts.Infrastructure.Systems
 
         public void Run()
         {
+            NativeList<JobHandle> jobHandleList = new NativeList<JobHandle>(Allocator.Temp);
             foreach (int index in _filter)
             {
                 PathFindingComponent pathFindingComponent = _filter.Get1(index);
@@ -42,13 +43,16 @@ namespace Assets.Scripts.Infrastructure.Systems
                 };
 
                 JobHandle handle = findPathJob.Schedule();
+                jobHandleList.Add(handle);
 
-                handle.Complete();
+                JobHandle.CompleteAll(jobHandleList);
 
                 SetPathComponent(entity, findPathJob);
 
                 entity.Del<PathFindingComponent>();
             }
+
+            jobHandleList.Dispose();
         }
 
         private bool PositionInGridWorld(PathFindingComponent pathFindingComponent)
