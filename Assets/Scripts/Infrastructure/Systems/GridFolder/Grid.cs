@@ -104,7 +104,7 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
         #endregion
 
         #region Position
-        public bool PositionToGrid(Vector3 positon)
+        public bool PositionToGrid(float3 positon)
         {
             int2 positionInGrid = PositionInGrid(positon);
 

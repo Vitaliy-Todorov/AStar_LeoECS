@@ -11,6 +11,9 @@ namespace Assets.Scripts
         public static Vector3 GetVector3(this float2 vector) =>
             new Vector3(vector.x, vector.y);
 
+        public static float3 GetFloat3(this float2 vector) =>
+            new float3(vector.x, vector.y, 0);
+
         public static int2 GetInt2(this float2 vector)
         {
             int x = Mathf.RoundToInt(vector.x);

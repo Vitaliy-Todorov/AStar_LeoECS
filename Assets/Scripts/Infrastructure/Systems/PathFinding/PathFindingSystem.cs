@@ -27,6 +27,14 @@ namespace Assets.Scripts.Infrastructure.Systems
             {
                 PathFindingComponent pathFindingComponent = filter.Get1(index);
 
+                if (!_gridSystem.Grid.PositionToGrid( pathFindingComponent.StartPosition.GetFloat3() ) 
+                    || !_gridSystem.Grid.PositionToGrid( pathFindingComponent.EndPosition.GetFloat3()) )
+                {
+                    filter.GetEntity(index)
+                        .Del<PathFindingComponent>();
+                    return;
+                }
+
                 FindPathJob findPathJob = new FindPathJob
                 {
                     _startPosition = _gridSystem.Grid.PositionInGrid(pathFindingComponent.StartPosition.GetVector3()),
@@ -46,8 +54,7 @@ namespace Assets.Scripts.Infrastructure.Systems
 
                 // path.Dispose();
 
-                filter
-                    .GetEntity(index)
+                filter.GetEntity(index)
                     .Del<PathFindingComponent>();
             }
         }
