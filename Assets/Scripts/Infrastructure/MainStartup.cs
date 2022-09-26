@@ -21,6 +21,7 @@ namespace Assets.Scripts.Infrastructure
         private EcsSystems _systems;
         private EcsSystems _fixedSystems;
         private InputSystem _inputSystem;
+        private GridSystem _gridSystem;
 
         private void Start()
         {
@@ -46,6 +47,11 @@ namespace Assets.Scripts.Infrastructure
             _fixedSystems?.Run();
         }
 
+        private void OnDestroy()
+        {
+            _gridSystem.Grid.GridArray.Arrray.Dispose();
+        }
+
         private void InitializedEntities()
         {
             foreach (Vector3 spawnPosition in _sceneData.SpawnPositions)
@@ -65,14 +71,14 @@ namespace Assets.Scripts.Infrastructure
         private void InitializedUpdateSystems()
         {
 
-            GridSystem gridSystem = new GridSystem();
+            _gridSystem = new GridSystem();
             PathFindingSystem pathFindingSystem = new PathFindingSystem();
 
-            pathFindingSystem.Construct(gridSystem);
+            pathFindingSystem.Construct(_gridSystem);
 
             _systems
                 .Add(_inputSystem)
-                .Add(gridSystem)
+                .Add(_gridSystem)
                 .Add(new InputMoveSystem())
                 .Add(pathFindingSystem)
                 .Inject(_world)
