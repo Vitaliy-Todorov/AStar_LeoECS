@@ -44,14 +44,10 @@ namespace Assets.Scripts.Infrastructure.Systems
                 if (moveIn.magnitude > 0.2f)
                     Move(gameObject.transform, moveIn.normalized, _moveComponent.MaxSpeed);
                 else
-                    if( pathFindingComponent.Path.Length - 1 > pathFindingComponent.NextNodeNumberOfPath)
-                    {
-                        Debug.Log($"else1 {NextNodePositionInt2}");
-                        pathFindingComponent.NextNodeNumberOfPath += 1;
-                    }
+                    if(pathFindingComponent.NextNodeNumberOfPath > 0)
+                        pathFindingComponent.NextNodeNumberOfPath -= 1;
                     else
                     {
-                        Debug.Log($"else2 {NextNodePositionInt2}");
                         pathFindingComponent.Path.Dispose();
                         _filter.GetEntity(index).Del<PathComponent>();
                     }

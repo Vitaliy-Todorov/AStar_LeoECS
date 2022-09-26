@@ -90,7 +90,7 @@ namespace Assets.Scripts.Infrastructure.Systems
                 entity.Get<PathComponent>() = new PathComponent
                 {
                     Path = findPathJob._path,
-                    NextNodeNumberOfPath = 0
+                    NextNodeNumberOfPath = findPathJob._path.Length - 1
                 };
         }
     }
