@@ -23,7 +23,7 @@ namespace Assets.Scripts.Infrastructure.Systems
                 PathFindingComponent pathFindingComponent = _filter.Get1(index);
                 ref EcsEntity entity = ref _filter.GetEntity(index);
 
-                if (PositionToGrid(pathFindingComponent))
+                if (PositionInGridWorld(pathFindingComponent))
                 {
                     entity.Del<PathFindingComponent>();
                     return;
@@ -51,10 +51,10 @@ namespace Assets.Scripts.Infrastructure.Systems
             }
         }
 
-        private bool PositionToGrid(PathFindingComponent pathFindingComponent)
+        private bool PositionInGridWorld(PathFindingComponent pathFindingComponent)
         {
-            return !_gridSystem.Grid.PositionToGrid(pathFindingComponent.StartPosition.GetFloat3())
-                                || !_gridSystem.Grid.PositionToGrid(pathFindingComponent.EndPosition.GetFloat3());
+            return !_gridSystem.Grid.IsPositionInsideGrid(pathFindingComponent.StartPosition.GetFloat3())
+                                || !_gridSystem.Grid.IsPositionInsideGrid(pathFindingComponent.EndPosition.GetFloat3());
         }
 
         private static void DelPathComponent(EcsEntity entity)

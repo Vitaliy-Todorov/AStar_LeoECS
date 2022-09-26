@@ -64,7 +64,7 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
         {
             int2 positionInGrid = PositionInGrid(positionInWorld);
 
-            return PositionToGrid(positionInWorld) && _gridArray[positionInGrid.x, positionInGrid.y].IsWall;
+            return IsPositionInsideGrid(positionInWorld) && _gridArray[positionInGrid.x, positionInGrid.y].IsWall;
         }
 
         public void SetWall(Vector3 positon, EcsEntity entity)
@@ -104,7 +104,7 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
         #endregion
 
         #region Position
-        public bool PositionToGrid(float3 positon)
+        public bool IsPositionInsideGrid(float3 positon)
         {
             int2 positionInGrid = PositionInGrid(positon);
 

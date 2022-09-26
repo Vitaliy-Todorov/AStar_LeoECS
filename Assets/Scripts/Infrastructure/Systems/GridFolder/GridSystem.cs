@@ -31,7 +31,7 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
         {
             if (_click.Up
                 && _inputService.LeftShift
-                && _grid.PositionToGrid(_click.StartPosition))
+                && _grid.IsPositionInsideGrid(_click.StartPosition))
                 SetIsWall(_click.StartPosition);
         }
 
