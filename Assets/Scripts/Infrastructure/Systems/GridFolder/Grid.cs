@@ -10,7 +10,7 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
     public struct Grid
     {
         private NativeArrayDimensional<GridNode> _gridArray;
-        private Vector3 _originPosition;
+        private float3 _originPosition;
         private float _cellSize;
         private int2 _size;
 
@@ -21,7 +21,7 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
         public Grid(int width, int height, float cellSize, Vector3 originPosition)
         {
             _size = new int2(width, height);
-            _gridArray = new NativeArrayDimensional<GridNode>(_size, Allocator.Temp);
+            _gridArray = new NativeArrayDimensional<GridNode>(_size, Allocator.Persistent);
             _originPosition = originPosition;
             _cellSize = cellSize;
 
@@ -62,8 +62,8 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
             return currentPosition.x + currentPosition.y * max;
         }
 
-        private Vector3 GridCorners(int x, int y) =>
-            GetWorldPosition(x, y) - new Vector3(1, 1, 0) * .5f * _cellSize;
+        private float3 GridCorners(int x, int y) =>
+            GetWorldPosition(x, y) - new float3(1, 1, 0) * .5f * _cellSize;
 
         #region Wall
         public bool IsWall(Vector3 positionInWorld)
@@ -127,14 +127,14 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
             return GetWorldPosition(positionInGridInt.x, positionInGridInt.y);
         }
 
-        private Vector3 GetWorldPosition(int x, int y)
+        private float3 GetWorldPosition(int x, int y)
         {
-            return new Vector3(x, y, 0) * _cellSize + _originPosition;
+            return new float3(x, y, 0) * _cellSize + _originPosition;
         }
 
-        private int2 PositionInGrid(Vector3 positionInWorld)
+        private int2 PositionInGrid(float3 positionInWorld)
         {
-            Vector3 positionInGrid = (positionInWorld - _originPosition) / _cellSize;
+            float3 positionInGrid = (positionInWorld - _originPosition) / _cellSize;
             int x = Mathf.RoundToInt(positionInGrid.x);
             int y = Mathf.RoundToInt(positionInGrid.y);
 

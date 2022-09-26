@@ -10,8 +10,6 @@ namespace Assets.Scripts.Infrastructure.Systems
     // [UpdateAfter(typeof(UnitMoveOrderSystem))]
     public partial class PathFindingSystem : IEcsRunSystem
     {
-        private const int MOVE_STRAIGHT_COST = 10;
-        private const int MOVE_DIAGONAL_COST = 14;
         private EcsFilter<PathFindingComponent> _filter;
         private GridSystem _gridSystem;
 
@@ -35,6 +33,7 @@ namespace Assets.Scripts.Infrastructure.Systems
                     _endPosition = (int2)pathFindingComponent.EndPosition,
 
                     _gridSize = _gridSystem.Grid.Size,
+                    _grid = _gridSystem.Grid,
 
                     _path = new NativeList<int2>(Allocator.Persistent)
                 };
