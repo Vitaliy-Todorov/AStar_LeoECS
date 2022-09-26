@@ -6,32 +6,29 @@ using UnityEngine;
 
 namespace Assets.Scripts.Infrastructure.Systems
 {
-    public class MoveSystem : IEcsInitSystem, IEcsRunSystem
+    public class MoveSystem : IEcsRunSystem
     {
         private EcsFilter<MoveComponent, RigidbodyComponent, GameObjectComponent, PathComponent> _filter;
 
-        private InputSystem _inputService;
-        private Click _click;
-        private MoveData _moveComponent;
-
-        public void Init()
-        {
-            _click = _inputService.Click;
-        }
+        // private InputSystem _inputService = null;
+        private MoveData _moveComponent = null;
 
         public void Run()
         {
             foreach(int index in _filter)
             {
                 ref MoveComponent moveComponent = ref _filter.Get1(index);
-                Rigidbody2D rigidbody = _filter.Get2(index).Rigidbody;
+                // Rigidbody2D rigidbody = _filter.Get2(index).Rigidbody;
                 GameObject gameObject = _filter.Get3(index).gameObject;
                 ref PathComponent pathFindingComponent = ref _filter.Get4(index);
 
-                //Vector3 moveIn = moveComponent.MoveIn - gameObject.transform.position;
+                if (pathFindingComponent.Path.IsEmpty)
+                {
+                    DelPathFindingComponent(index, pathFindingComponent);
+                    return;
+                }
 
-                int2 NextNodePositionInt2 = pathFindingComponent.Path[pathFindingComponent.NextNodeNumberOfPath];
-                Vector3 NextNodePosition = new Vector3(NextNodePositionInt2.x, NextNodePositionInt2.y);
+                Vector3 NextNodePosition = pathFindingComponent.Path[pathFindingComponent.NextNodeNumberOfPath];
                 Vector3 moveIn = NextNodePosition - gameObject.transform.position;
 
                 /*if (rigidbody.velocity.magnitude < _moveComponent.MaxSpeed
@@ -46,12 +43,15 @@ namespace Assets.Scripts.Infrastructure.Systems
                 else
                     if(pathFindingComponent.NextNodeNumberOfPath > 0)
                         pathFindingComponent.NextNodeNumberOfPath -= 1;
-                    else
-                    {
-                        pathFindingComponent.Path.Dispose();
-                        _filter.GetEntity(index).Del<PathComponent>();
-                    }
+                else
+                    DelPathFindingComponent(index, pathFindingComponent);
             }
+        }
+
+        private void DelPathFindingComponent(int index, PathComponent pathFindingComponent)
+        {
+            pathFindingComponent.Path.Dispose();
+            _filter.GetEntity(index).Del<PathComponent>();
         }
 
         private void Move(Transform transform, Vector3 moveIn, float maxSpeed)

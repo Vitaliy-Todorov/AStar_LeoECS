@@ -5,7 +5,7 @@ namespace Assets.Scripts.Component
 {
     public struct PathComponent
     {
-        public NativeList<int2> Path;
+        public NativeList<float3> Path;
 
         public int NextNodeNumberOfPath;
     }

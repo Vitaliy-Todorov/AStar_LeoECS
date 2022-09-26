@@ -29,13 +29,13 @@ namespace Assets.Scripts.Infrastructure.Systems
 
                 FindPathJob findPathJob = new FindPathJob
                 {
-                    _startPosition = (int2)pathFindingComponent.StartPosition,
-                    _endPosition = (int2)pathFindingComponent.EndPosition,
+                    _startPosition = _gridSystem.Grid.PositionInGrid(pathFindingComponent.StartPosition.GetVector3()),
+                    _endPosition = _gridSystem.Grid.PositionInGrid(pathFindingComponent.EndPosition.GetVector3()),
 
                     _gridSize = _gridSystem.Grid.Size,
                     _grid = _gridSystem.Grid,
 
-                    _path = new NativeList<int2>(Allocator.Persistent)
+                    _path = new NativeList<float3>(Allocator.Persistent)
                 };
 
                 JobHandle handle = findPathJob.Schedule();
@@ -51,38 +51,6 @@ namespace Assets.Scripts.Infrastructure.Systems
                     .Del<PathFindingComponent>();
             }
         }
-
-        /*private NativeArray<GridNode> FillGrid()
-        {
-            int2 gridSize;
-            NativeArray<GridNode> pathNodeArray = new NativeArray<GridNode>(gridSize.x * gridSize.y, Allocator.Temp);
-
-            for (int x = 0; x < gridSize.x; x++)
-                for (int y = 0; y < gridSize.y; y++)
-                {
-                    int2 currentPosition = new int2(x, y);
-
-                    Cost costNode = new Cost
-                    {
-                        G = int.MaxValue,
-                        H = FindPathJob.CalculatedDistanceCost(currentPosition, _endPosition)
-                    };
-
-                    GridNode pathNode = new GridNode
-                    {
-                        Index = currentPosition.x + currentPosition.y * gridSize.x,
-                        Position = currentPosition,
-                        Cost = costNode,
-
-                        IsWalkable = true,
-                        CameFromNodeIndex = -1 //
-                    };
-
-                    pathNodeArray[pathNode.Index] = pathNode;
-                }
-
-            return pathNodeArray;
-        }*/
 
         private void SetPathComponent(EcsEntity entity, FindPathJob findPathJob)
         {

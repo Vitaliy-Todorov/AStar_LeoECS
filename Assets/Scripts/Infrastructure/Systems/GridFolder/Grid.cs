@@ -30,15 +30,15 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
                 {
                     int2 currentPosition = new int2(x, y);
 
-                    Cost costNode = new Cost();
-                    /*{
-                        G = int.MaxValue,
-                        H = CalculatedDistanceCost(currentPosition, endPosition)
-                    };*/
+                    Cost costNode = new Cost()
+                    {
+                        G = int.MaxValue
+                        //H = CalculatedDistanceCost(currentPosition, endPosition)
+                    };
 
                     _gridArray[x, y] = new GridNode
                     {
-                        Index = CalculatedIndex(currentPosition),
+                        Index = _gridArray.GetIndex(currentPosition),
                         Position = currentPosition,
                         Cost = costNode,
 
@@ -54,12 +54,6 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
                 Debug.DrawLine(GridCorners(0, y), GridCorners(_gridArray.GetLength(0), y), Color.green, 100);
 
 
-        }
-
-        public int CalculatedIndex(int2 currentPosition)
-        {
-            int max = math.max(_gridArray.GetLength(0), _gridArray.GetLength(1));
-            return currentPosition.x + currentPosition.y * max;
         }
 
         private float3 GridCorners(int x, int y) =>
@@ -85,6 +79,7 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
 
             GridNode gridNode = _gridArray[positionInGrid.x, positionInGrid.y];
             gridNode.IsWall = true;
+            gridNode.IsWalkable = false;
             gridNode.WallIdEntity = entity.GetInternalId();
 
             _gridArray[positionInGrid.x, positionInGrid.y] = gridNode;
@@ -94,6 +89,7 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
         {
             GridNode gridNode = _gridArray[positionInGrid.x, positionInGrid.y];
             gridNode.IsWall = isWall;
+            gridNode.IsWalkable = !isWall;
             return gridNode;
         }
 
@@ -127,12 +123,12 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
             return GetWorldPosition(positionInGridInt.x, positionInGridInt.y);
         }
 
-        private float3 GetWorldPosition(int x, int y)
+        public float3 GetWorldPosition(int x, int y)
         {
             return new float3(x, y, 0) * _cellSize + _originPosition;
         }
 
-        private int2 PositionInGrid(float3 positionInWorld)
+        public int2 PositionInGrid(float3 positionInWorld)
         {
             float3 positionInGrid = (positionInWorld - _originPosition) / _cellSize;
             int x = Mathf.RoundToInt(positionInGrid.x);

@@ -8,11 +8,9 @@ namespace Assets.Scripts.Infrastructure.Systems
     public class InputMoveSystem : IEcsInitSystem, IEcsRunSystem
     {
         private EcsFilter<MoveComponent, GameObjectComponent> _filter;
-        private EcsFilter<PathFindingComponent> _filterPathFinding;
 
-        private InputSystem _inputService;
+        private InputSystem _inputService = null;
         private Click _click;
-        private MoveData _moveComponent;
 
         public void Init()
         {

@@ -33,6 +33,8 @@ namespace Assets.Scripts.Logic
 
         public int GetIndex(int indexX, int indexY) =>
             indexX + indexY * _maxSaize;
+        public int GetIndex(int2 index) =>
+            index.x + index.y * _maxSaize;
 
         public int GetLength(int dimension)
         {

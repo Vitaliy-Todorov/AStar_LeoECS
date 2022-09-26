@@ -6,8 +6,8 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
 {
     public partial class GridSystem : IEcsInitSystem, IEcsRunSystem
     {
-        private EcsWorld _world;
-        private InputSystem _inputService;
+        private EcsWorld _world = null;
+        private InputSystem _inputService = null;
         private Click _click;
 
         private Grid _grid;

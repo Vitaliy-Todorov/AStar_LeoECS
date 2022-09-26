@@ -9,7 +9,7 @@ using Grid = Assets.Scripts.Infrastructure.Systems.GridFolder.Grid;
 
 namespace Assets.Scripts.Infrastructure.Systems
 {
-    [BurstCompile]
+    //[BurstCompile]
     public struct FindPathJob : IJob
     {
         private const int MOVE_STRAIGHT_COST = 10;
@@ -21,13 +21,20 @@ namespace Assets.Scripts.Infrastructure.Systems
         public int2 _gridSize;
         public Grid _grid;
 
-        public NativeList<int2> _path;
+        public NativeList<float3> _path;
 
         public void Execute()
         {
             int2 gridSize = _gridSize;
 
-            NativeArray<GridNode> gridArray = FillGrid(gridSize);
+            NativeArray<GridNode> gridArray = new NativeArray<GridNode>(_grid.GridArray.Arrray, Allocator.Temp);
+
+            for(int i = 0; i < gridArray.Length; i++)
+            {
+                GridNode gridNode = gridArray[i];
+                gridNode.Cost.H = CalculatedDistanceCost(gridArray[i].Position, _endPosition);
+                gridArray[i] = gridNode;
+            }
 
             NativeArray<int2> neighourOffsetArray = NeighourOffsetArray();
 
@@ -102,7 +109,7 @@ namespace Assets.Scripts.Infrastructure.Systems
                 NativeList<int2> path = CalculatePath(gridArray, endNode);
 
                 foreach (int2 pointNoPath in path)
-                    _path.Add(pointNoPath);
+                    _path.Add(_grid.GetWorldPosition(pointNoPath.x, pointNoPath.y));
 
                 path.Dispose();
             }
