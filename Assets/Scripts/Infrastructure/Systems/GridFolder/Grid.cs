@@ -1,5 +1,7 @@
 ﻿using Assets.Scripts.Component;
+using Assets.Scripts.Logic;
 using Leopotam.Ecs;
+using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -7,15 +9,19 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
 {
     public struct Grid
     {
-        private GridNode[,] _gridArray;
+        private NativeArrayDimensional<GridNode> _gridArray;
         private Vector3 _originPosition;
         private float _cellSize;
+        private int2 _size;
 
+        public NativeArrayDimensional<GridNode> GridArray { get => _gridArray; }
         public float CellSize { get => _cellSize; }
+        public int2 Size { get => _size; }
 
         public Grid(int width, int height, float cellSize, Vector3 originPosition)
         {
-            _gridArray = new GridNode[width, height];
+            _size = new int2(width, height);
+            _gridArray = new NativeArrayDimensional<GridNode>(_size, Allocator.Temp);
             _originPosition = originPosition;
             _cellSize = cellSize;
 
@@ -46,6 +52,8 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
 
             for (int y = 0; y <= _gridArray.GetLength(1); y++)
                 Debug.DrawLine(GridCorners(0, y), GridCorners(_gridArray.GetLength(0), y), Color.green, 100);
+
+
         }
 
         public int CalculatedIndex(int2 currentPosition)
@@ -74,14 +82,25 @@ namespace Assets.Scripts.Infrastructure.Systems.GridFolder
             transformWorld.position = positionInGridWorld;
             transformWorld.localScale = new Vector3(1, 1, 1) * _cellSize;
 
-            _gridArray[positionInGrid.x, positionInGrid.y].IsWall = true;
-            _gridArray[positionInGrid.x, positionInGrid.y].WallIdEntity = entity.GetInternalId();
+
+            GridNode gridNode = _gridArray[positionInGrid.x, positionInGrid.y];
+            gridNode.IsWall = true;
+            gridNode.WallIdEntity = entity.GetInternalId();
+
+            _gridArray[positionInGrid.x, positionInGrid.y] = gridNode;
+        }
+
+        private GridNode SetWalll(int2 positionInGrid, bool isWall)
+        {
+            GridNode gridNode = _gridArray[positionInGrid.x, positionInGrid.y];
+            gridNode.IsWall = isWall;
+            return gridNode;
         }
 
         public void DestroyWall(Vector3 positon, EcsWorld world)
         {
             int2 positionInGrid = PositionInGrid(positon);
-            _gridArray[positionInGrid.x, positionInGrid.y].IsWall = false;
+            _gridArray[positionInGrid.x, positionInGrid.y] = SetWalll(positionInGrid, false);
             int wallIdEntity = _gridArray[positionInGrid.x, positionInGrid.y].WallIdEntity;
             EcsEntity wallEntity = world.RestoreEntityFromInternalId(wallIdEntity);
             Object.Destroy(wallEntity.Get<GameObjectComponent>().gameObject);

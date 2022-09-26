@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MoveData:
     MaxSpeed: 8
-    Acceleration: 0.8
+    Acceleration: 10
