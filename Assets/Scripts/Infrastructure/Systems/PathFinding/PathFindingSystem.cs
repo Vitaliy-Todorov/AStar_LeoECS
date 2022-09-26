@@ -18,29 +18,24 @@ namespace Assets.Scripts.Infrastructure.Systems
 
         public void Run()
         {
-            PathFinding(_filter);
-        }
-
-        private void PathFinding(EcsFilter<PathFindingComponent> filter)
-        {
-            foreach (int index in filter)
+            foreach (int index in _filter)
             {
-                PathFindingComponent pathFindingComponent = filter.Get1(index);
+                PathFindingComponent pathFindingComponent = _filter.Get1(index);
+                ref EcsEntity entity = ref _filter.GetEntity(index);
 
-                if (!_gridSystem.Grid.PositionToGrid( pathFindingComponent.StartPosition.GetFloat3() ) 
-                    || !_gridSystem.Grid.PositionToGrid( pathFindingComponent.EndPosition.GetFloat3()) )
+                if (PositionToGrid(pathFindingComponent))
                 {
-                    filter.GetEntity(index)
-                        .Del<PathFindingComponent>();
+                    entity.Del<PathFindingComponent>();
                     return;
                 }
+
+                DelPathComponent(entity);
 
                 FindPathJob findPathJob = new FindPathJob
                 {
                     _startPosition = _gridSystem.Grid.PositionInGrid(pathFindingComponent.StartPosition.GetVector3()),
                     _endPosition = _gridSystem.Grid.PositionInGrid(pathFindingComponent.EndPosition.GetVector3()),
 
-                    _gridSize = _gridSystem.Grid.Size,
                     _grid = _gridSystem.Grid,
 
                     _path = new NativeList<float3>(Allocator.Persistent)
@@ -50,12 +45,24 @@ namespace Assets.Scripts.Infrastructure.Systems
 
                 handle.Complete();
 
-                SetPathComponent(_filter.GetEntity(index), findPathJob);
+                SetPathComponent(entity, findPathJob);
 
-                // path.Dispose();
+                entity.Del<PathFindingComponent>();
+            }
+        }
 
-                filter.GetEntity(index)
-                    .Del<PathFindingComponent>();
+        private bool PositionToGrid(PathFindingComponent pathFindingComponent)
+        {
+            return !_gridSystem.Grid.PositionToGrid(pathFindingComponent.StartPosition.GetFloat3())
+                                || !_gridSystem.Grid.PositionToGrid(pathFindingComponent.EndPosition.GetFloat3());
+        }
+
+        private static void DelPathComponent(EcsEntity entity)
+        {
+            if (entity.Has<PathComponent>())
+            {
+                entity.Get<PathComponent>().Path.Dispose();
+                entity.Del<PathComponent>();
             }
         }
 

@@ -21,6 +21,7 @@ namespace Assets.Scripts.Logic
         }
 
         public NativeArray<T> Arrray { get => _arrray; }
+        public int MaxSaize { get => _maxSaize; }
 
         public T this[int indexX, int indexY]
         {

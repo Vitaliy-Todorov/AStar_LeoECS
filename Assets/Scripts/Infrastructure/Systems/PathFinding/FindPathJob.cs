@@ -9,7 +9,7 @@ using Grid = Assets.Scripts.Infrastructure.Systems.GridFolder.Grid;
 
 namespace Assets.Scripts.Infrastructure.Systems
 {
-    //[BurstCompile]
+    [BurstCompile]
     public struct FindPathJob : IJob
     {
         private const int MOVE_STRAIGHT_COST = 10;
@@ -18,16 +18,16 @@ namespace Assets.Scripts.Infrastructure.Systems
         public int2 _startPosition;
         public int2 _endPosition;
 
-        public int2 _gridSize;
         public Grid _grid;
 
         public NativeList<float3> _path;
 
         public void Execute()
         {
-            int2 gridSize = _gridSize;
+            int2 gridSize = _grid.Size;
+            int maxSaize = _grid.GridArray.MaxSaize;
 
-            NativeArray<GridNode> gridArray = new NativeArray<GridNode>(_grid.GridArray.Arrray, Allocator.Temp);
+            NativeArray <GridNode> gridArray = new NativeArray<GridNode>(_grid.GridArray.Arrray, Allocator.Temp);
 
             for(int i = 0; i < gridArray.Length; i++)
             {
@@ -38,9 +38,9 @@ namespace Assets.Scripts.Infrastructure.Systems
 
             NativeArray<int2> neighourOffsetArray = NeighourOffsetArray();
 
-            int endNodeIndex = CalculatedIndex(_endPosition, gridSize.x);
+            int endNodeIndex = CalculatedIndex(_endPosition, maxSaize);
 
-            GridNode startNod = gridArray[CalculatedIndex(_startPosition, gridSize.x)];
+            GridNode startNod = gridArray[CalculatedIndex(_startPosition, maxSaize)];
             startNod.Cost.G = 0;
             gridArray[startNod.Index] = startNod;
 
@@ -54,31 +54,20 @@ namespace Assets.Scripts.Infrastructure.Systems
                 int currentNodeIndex = GetLowestCostFNodeIndex(openList, gridArray);
                 GridNode currentNode = gridArray[currentNodeIndex];
 
-                // Достигли конца
                 if (currentNodeIndex == endNodeIndex)
                     break;
 
-                // Удаляем пройденый узел
-                for (int i = 0; i < openList.Length; i++)
-                    if (openList[i] == currentNodeIndex)
-                    {
-                        openList.RemoveAtSwapBack(i);
-                        break;
-                    }
-
-                closedList.Add(currentNodeIndex);
+                DeleteNode(ref openList, ref closedList, currentNodeIndex);
 
                 for (int i = 0; i < neighourOffsetArray.Length; i++)
                 {
-                    int2 neighourOffset = neighourOffsetArray[i];
-                    int2 neighourPosition = new int2(currentNode.Position.x + neighourOffset.x, currentNode.Position.y + neighourOffset.y);
+                    int2 neighourPosition = NeighourPosition(ref neighourOffsetArray, currentNode, i);
 
                     // Принадлежит сетке
                     if (!IsPositionInsideGrid(neighourPosition, gridSize))
                         continue;
 
-                    int neighbourNodeIndex = CalculatedIndex(neighourPosition, gridSize.x);
-                    // Проходили ли по этому узлу
+                    int neighbourNodeIndex = CalculatedIndex(neighourPosition, maxSaize);
                     if (closedList.Contains(neighbourNodeIndex))
                         continue;
 
@@ -120,6 +109,25 @@ namespace Assets.Scripts.Infrastructure.Systems
             gridArray.Dispose();
         }
 
+        private static void DeleteNode(ref NativeList<int> openList, ref NativeList<int> closedList, int currentNodeIndex)
+        {
+            for (int i = 0; i < openList.Length; i++)
+                if (openList[i] == currentNodeIndex)
+                {
+                    openList.RemoveAtSwapBack(i);
+                    break;
+                }
+
+            closedList.Add(currentNodeIndex);
+        }
+
+        private static int2 NeighourPosition(ref NativeArray<int2> neighourOffsetArray, GridNode currentNode, int i)
+        {
+            int2 neighourOffset = neighourOffsetArray[i];
+            int2 neighourPosition = new int2(currentNode.Position.x + neighourOffset.x, currentNode.Position.y + neighourOffset.y);
+            return neighourPosition;
+        }
+
         private static NativeArray<int2> NeighourOffsetArray()
         {
             NativeArray<int2> neighourOffsetArray = new NativeArray<int2>(8, Allocator.Temp);
@@ -132,37 +140,6 @@ namespace Assets.Scripts.Infrastructure.Systems
             neighourOffsetArray[6] = new int2(1, -1);
             neighourOffsetArray[7] = new int2(1, 1);
             return neighourOffsetArray;
-        }
-
-        private NativeArray<GridNode> FillGrid(int2 gridSize)
-        {
-            NativeArray<GridNode> pathNodeArray = new NativeArray<GridNode>(gridSize.x * gridSize.y, Allocator.Temp);
-
-            for (int x = 0; x < gridSize.x; x++)
-                for (int y = 0; y < gridSize.y; y++)
-                {
-                    int2 currentPosition = new int2(x, y);
-
-                    Cost costNode = new Cost
-                    {
-                        G = int.MaxValue,
-                        H = CalculatedDistanceCost(currentPosition, _endPosition)
-                    };
-
-                    GridNode pathNode = new GridNode
-                    {
-                        Index = CalculatedIndex(currentPosition, gridSize.x),
-                        Position = currentPosition,
-                        Cost = costNode,
-
-                        IsWalkable = true,
-                        CameFromNodeIndex = -1 //
-                    };
-
-                    pathNodeArray[pathNode.Index] = pathNode;
-                }
-
-            return pathNodeArray;
         }
 
         private NativeList<int2> CalculatePath(NativeArray<GridNode> pathNodeArray, GridNode endNode)
