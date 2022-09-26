@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: SceneData
   m_EditorClassIdentifier: 
   SpawnPositions:
-  - {x: -5.19, y: 2.51, z: 0}
+  - {x: -3.49, y: -0.24, z: 0}
+  - {x: 1.45, y: 2.3, z: 0}
